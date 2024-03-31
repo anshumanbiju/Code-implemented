@@ -57,9 +57,10 @@ def home():
 
 @app.route('/predict',methods=['POST'])
 
+@app.route('/predict', methods=['POST'])
 def predict():
     file = request.files['file']
-    file_path = os.path.join(os.getcwd(),file.filename)
+    file_path = os.path.join(os.getcwd(), file.filename)
     file.save(file_path)
     df = preprocess_data(file_path)[1]
     results_df = model.predict(df)
@@ -67,30 +68,34 @@ def predict():
     df_with_id = preprocess_data(file_path)[0]
     df_with_id['Cluster'] = results_df
 
-    #genrate the image and save them
+    # Generate the image and save them using matplotlib
+    plt.figure(figsize=(10, 6))
 
-    sns.stripplot(x='Cluster_Id',y='Amount',data=df_with_id,hue='Cluster_Id')
-    amount_img_path = 'static/ClusterId_Amount.png'
-    plt.savefig(amount_img_path)
-    plt.clt()
+    # Plot for Amount
+    plt.subplot(1, 3, 1)
+    sns.stripplot(x='Cluster', y='Amount', data=df_with_id, hue='Cluster')
+    plt.title('Amount')
 
-    sns.stripplot(x='Cluster_Id',y='Frequency',data=df_with_id,hue='Cluster_Id')
-    frequency_img_path = 'static/ClusterId_Frequency.png'
-    plt.savefig(frequency_img_path)
-    plt.clt()
+    # Plot for Frequency
+    plt.subplot(1, 3, 2)
+    sns.stripplot(x='Cluster', y='Frequency', data=df_with_id, hue='Cluster')
+    plt.title('Frequency')
 
-    sns.stripplot(x='Cluster_Id',y='Recency',data=df_with_id,hue='Cluster_Id')
-    recency_img_path = 'static/ClusterId_Recency.png'
-    plt.savefig(recency_img_path)
-    plt.clt()
+    # Plot for Recency
+    plt.subplot(1, 3, 3)
+    sns.stripplot(x='Cluster', y='Recency', data=df_with_id, hue='Cluster')
+    plt.title('Recency')
+
+    # Save the plot
+    img_path = 'static/cluster_plots.png'
+    plt.savefig(img_path)
+    plt.clf()  # Clear the current figure
 
     response = {
-        'amount_img_path':amount_img_path,
-        'frequency_img_path':frequency_img_path,
-        'recency_img_path':recency_img_path
+        'img_path': img_path
     }
 
-    return json.dumps(response)
+    return jsonify(response)
 
    
 if __name__ == '__main__':

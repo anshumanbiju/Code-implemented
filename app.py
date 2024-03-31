@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import json
 
 app=Flask(__name__)
-model = pickel.load(open('DB_model.pk1','rb'))
+model = pickle.load(open('kmeans_model.pkl','rb'))
 
 def load_and_clean_data(file_path):
     #load data
@@ -48,7 +48,7 @@ def preprocess_data(file_path):
     rfm_df_scaled=pd.DataFrame(rfm_df_scaled)
     rfm_df_scaled.columns = ['Amount', 'Frequency', 'Recency']
 
-    return rfm,rfm_scaled;
+    return rfm,rfm_df_scaled;
 
 
 @app.route('/')
@@ -59,7 +59,7 @@ def home():
 
 def predict():
     file = request.files['file']
-    file=path = os.path.join(os.getcwd(),file.filename)
+    file_path = os.path.join(os.getcwd(),file.filename)
     file.save(file_path)
     df = preprocess_data(file_path)[1]
     results_df = model.predict(df)
